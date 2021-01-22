@@ -1,0 +1,16 @@
+{
+    "presets": ["next/babel"],
+    "plugins": [
+        [
+            "styled-components",
+            {
+                "ssr": true,
+                "minify": true,
+                "displayName": true,
+                "preprocess": true
+            }
+        ],
+        ["@babel/plugin-proposal-decorators", { "legacy": true }],
+        ["@babel/plugin-proposal-class-properties", { "loose": true }]
+    ]
+}

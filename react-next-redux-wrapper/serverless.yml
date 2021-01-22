@@ -1,0 +1,11 @@
+myNextApplication:
+    component: '@sls-next/serverless-component@latest'
+    inputs:
+        name: ''
+        description: ''
+        bucketName: ''
+        publicDirectoryCache:
+            value: public, max-age=604800
+            test: /\.(gif|jpe?g|png|txt|xml)$/i
+        cloudfront:
+            distributionId: ''

@@ -1,0 +1,49 @@
+{
+    "name": "next-redux-template",
+    "version": "1.0.0",
+    "license": "MIT",
+    "scripts": {
+        "dev": "next",
+        "build": "next build",
+        "start": "next start",
+        "deploy": "export AWS_PROFILE=apick && yarn clear && serverless",
+        "clear": "rm -rf .next && rm -rf .serverless && rm -rf .serverless_nextjs"
+    },
+    "dependencies": {
+        "axios": "^0.21.1",
+        "immutable": "4.0.0-rc.12",
+        "next": "^10.0.5",
+        "next-redux-wrapper": "6.0.2",
+        "next-seo": "4.17.0",
+        "query-string": "6.13.8",
+        "react": "^17.0.1",
+        "react-dom": "^17.0.1",
+        "react-redux": "7.2.2",
+        "redux": "4.0.5",
+        "redux-actions": "2.6.5",
+        "redux-logger": "3.0.6",
+        "redux-persist": "6.0.0",
+        "redux-persist-transform-filter": "0.0.20",
+        "redux-persist-transform-immutable": "5.0.0",
+        "redux-thunk": "2.3.0",
+        "styled-components": "^5.2.1"
+    },
+    "devDependencies": {
+        "@babel/core": "7.12.10",
+        "@babel/plugin-proposal-class-properties": "^7.12.1",
+        "@babel/plugin-proposal-decorators": "^7.12.12",
+        "babel-eslint": "10.1.0",
+        "babel-plugin-styled-components": "1.12.0",
+        "eslint": "7.17.0",
+        "eslint-config-airbnb": "18.2.1",
+        "eslint-config-prettier": "7.1.0",
+        "eslint-plugin-babel": "5.3.1",
+        "eslint-plugin-import": "2.22.1",
+        "eslint-plugin-jsx-a11y": "6.4.1",
+        "eslint-plugin-prettier": "3.3.1",
+        "eslint-plugin-react": "7.22.0",
+        "eslint-plugin-react-hooks": "4.2.0",
+        "prettier": "2.2.1",
+        "redux-devtools-extension": "2.13.8"
+    }
+}
