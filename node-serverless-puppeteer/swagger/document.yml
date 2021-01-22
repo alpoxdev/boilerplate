@@ -1,0 +1,680 @@
+openapi: '3.0.0'
+info:
+    version: '0.0.1'
+    title: 'APICK API'
+    description: ''
+servers:
+    - url: 'https://api.apick.kr'
+      variables:
+          stage:
+              default: prod
+              enum:
+                  - dev
+                  - prod
+    - url: 'https://api-v2.apick.kr'
+      variables:
+          stage:
+              default: prod
+              enum:
+                  - prod
+
+tags:
+    - name: 'auth'
+      description: '회원 가입 및 로그인'
+
+    - name: 'fashion'
+      description: '패션 정보'
+
+    - name: 'product'
+      description: '제품 정보'
+
+    - name: 'brand'
+      description: '브랜드 정보'
+
+    - name: 'user'
+      description: '유저 정보'
+
+paths:
+    '/auth/login':
+        post:
+            summary: '로그인'
+            tags:
+                - auth
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                id:
+                                    type: string
+                                    example: test@test.com
+                                password:
+                                    type: string
+                                    example: testtest123!
+            responses:
+                200:
+                    description: accessToken & user data
+    '/auth/register':
+        post:
+            summary: '회원가입'
+            tags:
+                - auth
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            type: object
+                            properties:
+                                email:
+                                    type: string
+                                    example: test@test.com
+                                password:
+                                    type: string
+                                    example: testtest123!
+                                nickname:
+                                    type: string
+                                    example: test
+            responses:
+                200:
+                    description: return access token
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    accessToken:
+                                        type: string
+                                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImlkIjoiMjU4OWRhYmMtYzQzYy00NDgxLTg2YWItYjU0ODg4MjUxYWExIiwiZW1haWwiOiJ0ZXN0QGdtYWlsLmNvbSIsIm5hbWUiOiJzbWsiLCJ0aHVtYm5haWwiOm51bGwsInJvbGUiOiJ1c2VyIn0sImlhdCI6MTYwMDk1NzAzMSwiZXhwIjoxNjAxMDQzNDMxfQ.yEmHy_lumzz-LJHnADrBMDeE43UzmKvZZvgiQRHlW5k
+                                    user:
+                                        type: object
+                                        properties:
+                                            id:
+                                                type: number
+                                                example: 1
+    '/fashions':
+        get:
+            summary: '패션 목록'
+            tags:
+                - fashion
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 0
+                - in: query
+                  name: offset
+                  schema:
+                      type: integer
+                      default: 20
+            responses:
+                200:
+                    description: fashion list
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    fashion:
+                                        type: array
+                                        items:
+                                            type: object
+                                            $ref: '#/components/schemas/Fashion'
+    '/fashions/{id}':
+        get:
+            summary: '패션 자세히'
+            tags:
+                - fashion
+            parameters:
+                - name: id
+                  in: path
+                  description: Fashion ID
+                  required: true
+                  schema:
+                      type: integer
+                      format: int64
+            responses:
+                200:
+                    description: 패션 자세히 보기
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                $ref: '#/components/schemas/Fashion'
+    '/products':
+        get:
+            summary: '제품 목록보기'
+            tags:
+                - product
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 0
+                - in: query
+                  name: offset
+                  schema:
+                      type: integer
+                      default: 20
+            responses:
+                200:
+                    description: 제품 목록 보기
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    products:
+                                        type: array
+                                        items:
+                                            type: object
+                                            $ref: '#/components/schemas/Product'
+    '/products/{id}':
+        get:
+            summary: '제품 자세히 보기'
+            tags:
+                - product
+            parameters:
+                - name: id
+                  in: path
+                  description: Product ID
+                  required: true
+                  schema:
+                      type: integer
+                      format: int64
+            responses:
+                200:
+                    description: success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                $ref: '#/components/schemas/Product'
+    '/brands':
+        get:
+            summary: '브랜드 목록보기'
+            tags:
+                - brand
+            parameters:
+                - in: query
+                  name: page
+                  schema:
+                      type: integer
+                      default: 0
+                - in: query
+                  name: offset
+                  schema:
+                      type: integer
+                      default: 20
+            responses:
+                200:
+                    description: success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    brands:
+                                        type: array
+                                        items:
+                                            type: object
+                                            $ref: '#components/schemas/Brand'
+    '/users/info':
+        get:
+            summary: 'userInfo 조회 (토큰 기반)'
+            tags:
+                - user
+            security:
+            - bearerAuth: []
+            responses:
+                200:
+                    description: success
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    user:
+                                        $ref: '#components/schemas/User'
+                401:
+                    description: not found user (not valid token)
+                404:
+                    description: not found user (no database)
+
+security:
+    - bearerAuth: []
+
+components:
+    securitySchemes:
+        bearerAuth:
+            type: http
+            scheme: bearer
+            bearerFormat: JWT
+    schemas:
+        User:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                profile:
+                    type: object
+                    $ref: '#/components/schemas/Image'
+                email:
+                    type: string
+                nickname:
+                    type: string
+                socialType:
+                    type: string
+                    enum:
+                        - default
+                        - kakao
+                        - google
+                    default: default
+                socialId:
+                    type: string
+                refreshToken:
+                    type: string
+                userInfo:
+                    $ref: '#/components/schemas/UserInfo'
+                UserSocial:
+                    $ref : '#/components/schemas/UserSocial'
+                mainTag:
+                    $ref: '#/components/schemas/Tag'
+                subTag:
+                    $ref: '#/components/schemas/Tag'
+                role:
+                    type: string
+                    enum: ['user', 'picker', 'admin']
+                    default: 'user'
+                gender:
+                    type: string
+                    enum: ['Male', 'Female']
+                    default: 'Male'
+                status:
+                    type: string
+                    enum:
+                        - Active
+                        - Suspend
+                        - Withdraw
+                    default: Active
+                followers:
+                    type: array
+                    items: 
+                        $ref: '#/components/schemas/User'
+                following:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/User'
+                brandFollowing:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Brand'
+                likedFashion:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Fashion'
+                likedProduct:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Product'
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                deletedAt:
+                    type: string
+                    format: date-time
+        UserInfo:
+            type: object
+            properties:
+                id: 
+                    type: integer
+                    format: int64
+                age:
+                    type: integer
+                    format: int64
+                height:
+                    type: integer
+                weight:
+                    type:
+                        integer
+                bodyPublic: 
+                    type: boolean
+                shoulder: 
+                    type: integer
+                waist:
+                    type: integer
+                hip: 
+                    type: integer
+                thigh:
+                    type: integer
+                largeHeightTag:
+                    $ref: '#/components/schemas/BodyTag'
+                smallHeightTag:
+                    $ref: '#/components/schemas/BodyTag'
+                largeWeightTag:
+                    $ref: '#/components/schemas/BodyTag'
+                smallWeightTag:
+                    $ref: '#/components/schemas/BodyTag'
+                bodyForm:
+                    type: string
+        UserSocial:
+            type: object
+            properties: 
+                id:
+                    type: integer
+                    format: int64
+                instagram:
+                    type: string
+                site:
+                    type: string
+                youtube: 
+                    type: string
+        Fashion:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                description:
+                    type: string
+                status:
+                    type: string
+                    enum: ['Approval', 'Wait', 'Reject']
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                deletedAt:
+                    type: string
+                    format: date-time
+                user:
+                    type: object
+                    $ref: '#/components/schemas/User'
+                thumbnail:
+                    type: object
+                    $ref: '#/components/schemas/Image'
+                products:
+                    type: array
+                    items:
+                        type: object
+                        $ref: '#/components/schemas/FashionProduct'
+                tags:
+                    type: array
+                    items:
+                        type: object
+                        $ref: '#/components/schemas/Tag'
+                video:
+                    $ref: '#/components/schemas/FashionVideo'
+                comments:
+                    type: array
+                    items:
+                        type: object
+                        $ref: '#/components/schemas/FashionComment'
+                images:
+                    type: array
+                    items:
+                        type: object
+                        $ref: '#/components/schemas/Image'
+        FashionComment:
+            type: object
+            properties: 
+                id: 
+                    type: integer
+                user:
+                    $ref: '#/components/schemas/User'
+                content:
+                    type: string
+                replies:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/FashionReply'
+                image:
+                    $ref: '#/components/schemas/Image'
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        FashionReply:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                user:
+                    $ref: '#/components/schemas/User'
+                content:
+                    type: string
+                image:
+                    $ref: '#/components/schemas/Image'
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        FashionProduct:
+            type: object
+            properties:
+                id:
+                    type: integer
+                isWear:
+                    type: boolean
+                product:
+                    type: object
+                    $ref: '#/components/schemas/Product'
+                review:
+                    type: object
+                    $ref: '#/components/schemas/FashionReview'
+        FashionVideo:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                url: 
+                    type: string
+                clips:
+                    type: array
+                    items:
+                        type: object
+                        $ref: '#/components/schemas/FashionVideoClip'
+        FashionReview: 
+            type: object
+            properties:
+                id: 
+                    type: integer
+                    format: int64
+                user: 
+                    $ref: '#/components/schemas/User'
+                name: 
+                    type: string
+                market: 
+                    type: string
+                link:
+                    type: string
+                picker:
+                    type: string
+                color: 
+                    type: string
+                size:
+                    type: string
+                detail: 
+                    type: string
+                tip:
+                    type: string
+        FashionVideoClip:
+            type: object
+            properties:
+                id: 
+                    type: integer
+                    format: int64
+                time:
+                    type: string
+                type:
+                    $ref: '#/components/schemas/ProductType'
+        Product:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+                thumbnail:
+                    $ref: '#/components/schemas/Image'
+                images:
+                    type: array
+                    items: 
+                        $ref: '#/components/schemas/Image'
+                type:
+                    $ref: '#/components/schemas/ProductType'
+                gender:
+                    type: string
+                    enum: ['Male', 'Female', 'Unisex']
+                price:
+                    type: integer
+                salePrice:
+                    type: integer
+                url:
+                    type: string
+                color:
+                    $ref: '#/components/schemas/Color'
+                tags:
+                    type: array
+                    items: 
+                        $ref: '#/components/schemas/Tag'
+                brand:
+                    $ref: '#/components/schemas/Brand'
+                public:
+                    type: boolean
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+        ProductType:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                type:
+                    type: string
+        Brand:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+                url:
+                    type: string
+                email:
+                    type: string
+                public:
+                    type: boolean
+                products:
+                    type: array
+                    items: 
+                        $ref: '#/components/schemas/Product'
+                tags:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Tag'
+                createdAt:
+                    type: string
+                    format: date-time
+                updatedAt:
+                    type: string
+                    format: date-time
+                deletedAt:
+                    type: string
+                    format: date-time
+        Image:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                name:
+                    type: string
+                url:
+                    type: string
+        Tag:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                tag:
+                    type: string
+                description:
+                    type: string
+                type:
+                    type: string
+                    enum:
+                        - style
+                        - keyword
+        BodyTag:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                type:
+                    type: string
+                    enum: 
+                        - height
+                        - weight
+                groupType:
+                    type: string
+                    enum:
+                        - large
+                        - small
+                max:
+                    type: integer
+                    format: int64
+                min:
+                    type: integer
+                    format: int64
+                description:
+                    type: string
+        Color:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                color:
+                    type: string
+                hexcode:
+                    type: string
+        Style:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: int64
+                tags:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/Tag'
+                fashion:
+                    $ref: '#/components/schemas/Fashion'
+                type:
+                    type: string
+                    enum:
+                        - main
+                        - sub

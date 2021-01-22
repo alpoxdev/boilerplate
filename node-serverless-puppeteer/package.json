@@ -1,0 +1,47 @@
+{
+    "name": "iam-server",
+    "version": "1.0.0",
+    "main": "index.js",
+    "license": "MIT",
+    "scripts": {
+        "profile": "export AWS_PROFILE=default",
+        "start": "yarn profile && sls offline --stage local --noPrependStageInUrl --host 127.0.0.1 --httpPort 8080",
+        "start:local": "export IS_LOCAL=true && yarn start",
+        "deploy": "yarn profile && yarn clear && sls deploy --stage dev",
+        "deploy:prod": "yarn profile && yarn clear && sls deploy --stage prod",
+        "clear": "rm -rf .serverless && rm -rf .build",
+        "docs:init": "aws s3 sync ./node_modules/swagger-ui-dist s3://apick-document --profile default --exclude index.html",
+        "docs:init-html": "aws s3 cp ./swagger/index.html s3://apick-document/index.html --acl public-read --profile default",
+        "docs:deploy": "aws s3 cp ./swagger/document.yml s3://apick-document/document.yml --acl public-read --profile default"
+    },
+    "dependencies": {
+        "@types/puppeteer-core": "5.4.0",
+        "bcryptjs": "2.4.3",
+        "cheerio": "1.0.0-rc.5",
+        "chrome-aws-lambda": "5.5.0",
+        "jsonwebtoken": "8.5.1",
+        "mysql2": "2.2.5",
+        "puppeteer-core": "5.5.0",
+        "reflect-metadata": "0.1.13",
+        "typeorm": "0.2.29",
+        "uuid": "8.3.1"
+    },
+    "devDependencies": {
+        "@types/aws-lambda": "8.10.64",
+        "@types/bcryptjs": "2.4.2",
+        "@types/jsonwebtoken": "8.5.0",
+        "@types/swagger-ui-dist": "3.30.0",
+        "nodemon": "2.0.6",
+        "prettier": "2.1.2",
+        "puppeteer": "5.5.0",
+        "serverless": "2.10.0",
+        "serverless-layers": "2.3.0",
+        "serverless-nested-stack": "0.0.7",
+        "serverless-offline": "6.8.0",
+        "serverless-plugin-typescript": "1.1.9",
+        "swagger-ui": "3.37.2",
+        "swagger-ui-dist": "3.38.0",
+        "ts-node": "9.0.0",
+        "typescript": "4.0.5"
+    }
+}
