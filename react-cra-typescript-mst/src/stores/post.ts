@@ -3,8 +3,6 @@ import { Post, AsyncPost, AsyncPosts } from 'common/models';
 import { Response } from 'common/axios';
 import { PostRepository } from 'repository';
 
-let postStore;
-
 export const PostStore = types
     .model('PostStore', {
         posts: types.optional(types.maybe(types.array(Post)), []),
@@ -35,9 +33,7 @@ export const PostStore = types
         }),
     }));
 
-if (!postStore) {
-    postStore = PostStore.create({});
-}
+const postStore = PostStore.create({});
 
 export type IPostStore = Instance<typeof postStore>;
 

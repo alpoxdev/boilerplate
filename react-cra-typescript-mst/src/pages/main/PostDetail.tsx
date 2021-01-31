@@ -5,27 +5,27 @@ import { inject, observer } from 'mobx-react';
 import { MSTProps } from 'stores';
 import { IPost } from 'common/models';
 
-export const MainPostDetailPage = inject('store')(
-    observer(
-        ({ store }: MSTProps): JSX.Element => {
-            const { id }: any = useParams();
+export const MainPostDetail = ({ store }: MSTProps): JSX.Element => {
+    const { id }: any = useParams();
 
-            const postStore = store.postStore;
-            const { asyncPost } = postStore;
+    const postStore = store.postStore;
+    const { asyncPost } = postStore;
+    const post: IPost = asyncPost.data;
 
-            useEffect(() => {
-                postStore.onGetPost(id);
-            }, [id]);
+    useEffect(() => {
+        postStore.onGetPost(id);
+    }, [id]);
 
-            if (asyncPost.status === 'pending') {
-                return <div>Loading...</div>;
-            }
+    if (asyncPost.status === 'pending') {
+        return <div>Loading...</div>;
+    }
 
-            return (
-                <div>
-                    <p>{JSON.stringify(asyncPost.data)}</p>
-                </div>
-            );
-        },
-    ),
-);
+    return (
+        <div>
+            <h1>{post?.title}</h1>
+            <p>{post?.body}</p>
+        </div>
+    );
+};
+
+export const MainPostDetailPage = inject('store')(observer(MainPostDetail));
