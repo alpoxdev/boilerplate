@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { inject, observer } from 'mobx-react';
@@ -9,20 +10,19 @@ const MainPostList = ({ store }: MSTProps): JSX.Element => {
     const postStore = store.postStore;
     const { asyncPosts } = postStore;
 
-    console.log(store?.toJSON());
-    console.log('getSnapshot', asyncPosts.getSnapshot);
+    console.log('PostList', postStore.toJSON());
+
+    useEffect(() => {
+        postStore.onGetPosts();
+
+        return () => asyncPosts.onDefault();
+    }, []);
 
     if (asyncPosts.status === 'pending') {
         return <div>Loading...</div>;
     }
 
-    return (
-        <div>
-            <button onClick={postStore.onGetPosts}>+</button>
-
-            <PostListComponent posts={asyncPosts.data} />
-        </div>
-    );
+    return <PostListComponent posts={asyncPosts.data} />;
 };
 
 const PostListComponent = ({ posts }: { posts: IPost[] }): JSX.Element => {
