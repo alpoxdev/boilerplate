@@ -11,7 +11,8 @@ import {
     IArrayType,
     Instance,
 } from 'mobx-state-tree';
-import { Response, Error } from 'common/axios';
+import { Error } from 'common/axios';
+import { onPromise } from 'common/mst';
 
 export enum AsyncStatus {
     default = 'default',
@@ -35,23 +36,6 @@ export type AsyncModelTypes<T extends IAnyModelType, E extends IAnyModelType> = 
 export const EmptyModel = types.model();
 
 const ErrorModel = types.model<Error>();
-
-function onPromise<T extends IAnyModelType>(self: Instance<T>) {
-    return function* generator(
-        promise: (props?: any) => Promise<Response>,
-        key?: string,
-        ...props: any[]
-    ) {
-        self.onPending();
-
-        const response: Response = yield promise();
-        if (response.status >= 200 && response.status < 300) {
-            key ? self.onReady(response.data[key]) : self.onReady(response.data);
-        } else {
-            self.onError(response);
-        }
-    };
-}
 
 export function AsyncModel<T extends IAnyModelType>(
     name: string,
