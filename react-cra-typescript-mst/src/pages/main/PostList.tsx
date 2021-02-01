@@ -1,28 +1,43 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { inject, observer } from 'mobx-react';
 
 import { MSTProps } from 'stores';
 import { IPost } from 'common/models';
+import { create } from 'domain';
 
 const MainPostList = ({ store }: MSTProps): JSX.Element => {
     const postStore = store.postStore;
-    const { asyncPosts } = postStore;
+    const { asyncPosts, createPost } = postStore;
 
-    console.log('PostList', postStore.toJSON());
+    console.log(postStore?.toJSON());
+
+    const onCreatePost = useCallback(() => {
+        const params = {
+            title: 'test',
+            body: 'test',
+            userId: 1,
+        };
+        postStore.onCreatePost({ params });
+    }, [createPost]);
 
     useEffect(() => {
-        postStore.onGetPosts();
+        postStore.onGetPosts({});
 
         return () => asyncPosts.onDefault();
     }, []);
 
-    if (asyncPosts.status === 'pending') {
+    if (asyncPosts.isPending || createPost.isPending) {
         return <div>Loading...</div>;
     }
 
-    return <PostListComponent posts={asyncPosts.data} />;
+    return (
+        <>
+            <PostCreateButton onClick={onCreatePost}>글 생성</PostCreateButton>
+            <PostListComponent posts={asyncPosts.data} />
+        </>
+    );
 };
 
 const PostListComponent = ({ posts }: { posts: IPost[] }): JSX.Element => {
@@ -38,6 +53,16 @@ const PostListComponent = ({ posts }: { posts: IPost[] }): JSX.Element => {
 };
 
 export const MainPostListPage = inject('store')(observer(MainPostList));
+
+const PostCreateButton = styled.button({
+    width: '100px',
+    height: '45px',
+    outline: 0,
+    border: 0,
+    borderRadius: 12,
+    cursor: 'pointer',
+    marginBottom: 20,
+});
 
 const PostList = styled.div({
     display: 'flex',

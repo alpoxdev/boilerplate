@@ -1,5 +1,6 @@
 import {
     types,
+    flow,
     IAnyModelType,
     IMaybeNull,
     ISimpleType,
@@ -8,8 +9,9 @@ import {
     ValidOptionalValues,
     IModelType,
     IArrayType,
+    Instance,
 } from 'mobx-state-tree';
-import { Error } from 'common/axios';
+import { Response, Error } from 'common/axios';
 
 export enum AsyncStatus {
     default = 'default',
@@ -30,9 +32,28 @@ export type AsyncModelTypes<T extends IAnyModelType, E extends IAnyModelType> = 
     error: IMaybeNull<E>;
 };
 
+export const EmptyModel = types.model();
+
 const ErrorModel = types.model<Error>();
 
-function AsyncModel<T extends IAnyModelType>(
+function onPromise<T extends IAnyModelType>(self: Instance<T>) {
+    return function* generator(
+        promise: (props?: any) => Promise<Response>,
+        key?: string,
+        ...props: any[]
+    ) {
+        self.onPending();
+
+        const response: Response = yield promise();
+        if (response.status >= 200 && response.status < 300) {
+            key ? self.onReady(response.data[key]) : self.onReady(response.data);
+        } else {
+            self.onError(response);
+        }
+    };
+}
+
+export function AsyncModel<T extends IAnyModelType>(
     name: string,
     model: T,
 ): IModelType<AsyncModelType<T, any>, any> {
@@ -50,11 +71,22 @@ function AsyncModel<T extends IAnyModelType>(
             data: types.maybeNull(model),
             error: types.maybeNull(ErrorModel),
         } as AsyncModelType<T, any>)
-        .views((self) => ({}))
-        .actions((self) => ({
+        .views((self: Instance<T>) => ({
+            get isPending() {
+                return self.status === AsyncStatus.pending;
+            },
+            get isReady() {
+                return self.status === AsyncStatus.ready;
+            },
+            get isError() {
+                return self.status === AsyncStatus.error;
+            },
+        }))
+        .actions((self: Instance<T>) => ({
             onDefault() {
                 self.status = AsyncStatus.default;
                 self.error = null;
+                self.data = null;
             },
             onPending() {
                 self.status = AsyncStatus.pending;
@@ -69,10 +101,14 @@ function AsyncModel<T extends IAnyModelType>(
                 self.status = AsyncStatus.error;
                 self.error = error;
             },
+            onGetOne: flow(onPromise(self)),
+            onCreate: flow(onPromise(self)),
+            onDelete: flow(onPromise(self)),
+            onUpdate: flow(onPromise(self)),
         }));
 }
 
-function AsyncModels<T extends IAnyModelType>(
+export function AsyncModels<T extends IAnyModelType>(
     name: string,
     model: T,
 ): IModelType<AsyncModelTypes<T, any>, any> {
@@ -90,11 +126,22 @@ function AsyncModels<T extends IAnyModelType>(
             data: types.array(model),
             error: types.maybeNull(ErrorModel),
         } as AsyncModelTypes<T, any>)
-        .views((self) => ({}))
-        .actions((self) => ({
+        .views((self: Instance<T>) => ({
+            get isPending() {
+                return self.status === AsyncStatus.pending;
+            },
+            get isReady() {
+                return self.status === AsyncStatus.ready;
+            },
+            get isError() {
+                return self.status === AsyncStatus.error;
+            },
+        }))
+        .actions((self: Instance<T>) => ({
             onDefault() {
                 self.status = AsyncStatus.default;
                 self.error = null;
+                self.data = [];
             },
             onPending() {
                 self.status = AsyncStatus.pending;
@@ -109,21 +156,6 @@ function AsyncModels<T extends IAnyModelType>(
                 self.status = AsyncStatus.error;
                 self.error = error;
             },
+            onGetAll: flow(onPromise(self)),
         }));
-}
-
-export function onAsyncModel<T extends IAnyModelType>(name: string, model: T) {
-    return types.optional(AsyncModel<T>(name, model), {
-        status: AsyncStatus.default,
-        data: null,
-        error: null,
-    });
-}
-
-export function onAsyncModels<T extends IAnyModelType>(name: string, model: T) {
-    return types.optional(AsyncModels<T>(name, model), {
-        status: AsyncStatus.default,
-        data: [],
-        error: null,
-    });
 }

@@ -15,9 +15,9 @@ export const MainPostDetail = ({ store }: MSTProps): JSX.Element => {
     console.log('PostDetail', postStore.toJSON());
 
     useEffect(() => {
-		postStore.onGetPost(id);
-		
-		return () => asyncPost.onDefault();
+        postStore.onGetPost({ id });
+
+        return () => asyncPost.onDefault();
     }, [id]);
 
     if (asyncPost.status === 'pending') {

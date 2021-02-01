@@ -1,36 +1,28 @@
-import { types, flow, Instance } from 'mobx-state-tree';
-import { Post, AsyncPost, AsyncPosts } from 'common/models';
-import { Response } from 'common/axios';
+import { types, Instance } from 'mobx-state-tree';
 import { PostRepository } from 'repository';
+
+import {
+    AsyncPost as asyncPost,
+    AsyncPosts as asyncPosts,
+    createPost,
+    deletePost,
+    updatePost,
+} from 'common/models';
 
 export const PostStore = types
     .model('PostStore', {
-        posts: types.optional(types.maybe(types.array(Post)), []),
-        post: types.optional(types.maybe(types.maybeNull(Post)), null),
-        asyncPost: AsyncPost,
-        asyncPosts: AsyncPosts,
+        asyncPost,
+        asyncPosts,
+        createPost,
+        deletePost,
+        updatePost,
     })
     .actions((self) => ({
-        onGetPosts: flow(function* getPosts() {
-            self.asyncPosts.onPending();
-
-            const response: Response = yield PostRepository.onGetPosts();
-            if (response.status === 200) {
-                self.asyncPosts.onReady(response.data);
-            } else {
-                self.asyncPosts.onError(response);
-            }
-        }),
-        onGetPost: flow(function* getPost(id: number) {
-            self.asyncPost.onPending();
-
-            const response: Response = yield PostRepository.onGetPost(id);
-            if (response.status === 200) {
-                self.asyncPost.onReady(response.data);
-            } else {
-                self.asyncPost.onError(response);
-            }
-        }),
+        onGetPosts: (props) => self.asyncPosts.onGetAll(() => PostRepository.onGetPosts(props)),
+        onGetPost: (props) => self.asyncPost.onGetOne(() => PostRepository.onGetPost(props)),
+        onCreatePost: (props) => self.createPost.onCreate(() => PostRepository.onCreatePost(props)),
+        onDeletePost: (props) => self.deletePost.onDelete(() => PostRepository.onDeletePost(props)),
+        onUpdatePost: (props) => self.updatePost.onCreate(() => PostRepository.onUpdatePost(props)),
     }));
 
 const postStore = PostStore.create({});
