@@ -13,7 +13,9 @@ interface IPostItem {
 }
 
 export const PostList = ({ posts }: IPostList) => {
-    const postList = posts.map((post: IPost) => <PostItem key={post.id} post={post} />);
+    const postList = posts.map((post: IPost, index: number) => (
+        <PostItem key={index} post={post} />
+    ));
 
     return <PostListView>{postList}</PostListView>;
 };

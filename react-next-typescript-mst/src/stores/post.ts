@@ -19,6 +19,8 @@ export const PostStore = types
     })
     .actions((self) => ({
         onGetPosts: (props) => self.asyncPosts.onGetAll(() => PostRepository.onGetPosts(props)),
+        onGetMorePosts: (props) =>
+            self.asyncPosts.onGetAll(() => PostRepository.onGetPosts(props), null, true),
         onGetPost: (props) => self.asyncPost.onGetOne(() => PostRepository.onGetPost(props)),
         onCreatePost: (props) => self.createPost.onCreate(() => PostRepository.onCreatePost(props)),
         onDeletePost: (props) => self.deletePost.onDelete(() => PostRepository.onDeletePost(props)),

@@ -4,7 +4,7 @@ import { useStaticRendering } from 'mobx-react';
 import makeInspectable from 'mobx-devtools-mst';
 
 // stores
-import postStore, { PostStore } from 'stores/post';
+import { PostStore } from 'stores/post';
 
 const isServer = typeof window === 'undefined';
 let store: IStore | null = null;
@@ -18,20 +18,22 @@ export const Store = types.model({
 export type IStore = Instance<typeof Store>;
 export interface MSTProps {
     store: IStore;
+    serverStore?: IStore;
 }
 
-export const initializeStore = (state?: any): IStore => {
+export const initializeStore = (initialState?: any): IStore => {
     if (isServer) {
-        return Store.create(state);
+        return Store.create(initialState);
     } else if (store !== null) {
         return store;
     } else {
-        return (store = Store.create(state));
+        return (store = Store.create(initialState));
     }
 };
 
-export const useStore = (state?: any) => {
-    const store = useMemo(() => initializeStore(state), [state]);
+export const useStore = (initialState?: any) => {
+    const store = useMemo(() => initializeStore(initialState), [initialState]);
+
     makeInspectable(store);
     return store;
 };

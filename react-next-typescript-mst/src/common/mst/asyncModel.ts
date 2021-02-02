@@ -25,6 +25,8 @@ export type AsyncModelType<T extends IAnyModelType, E extends IAnyModelType> = {
     status: IOptionalIType<ISimpleType<UnionStringArray<AsyncStatus[]>>, ValidOptionalValues>;
     data: IMaybeNull<T>;
     error: IMaybeNull<E>;
+    skip?: IOptionalIType<ISimpleType<number>, any>;
+    take?: IOptionalIType<ISimpleType<number>, any>;
 };
 
 export type AsyncModelTypes<T extends IAnyModelType, E extends IAnyModelType> = {
@@ -109,6 +111,8 @@ export function AsyncModels<T extends IAnyModelType>(
             ),
             data: types.array(model),
             error: types.maybeNull(ErrorModel),
+            skip: types.optional(types.number, 0),
+            take: types.optional(types.number, 20),
         } as AsyncModelTypes<T, any>)
         .views((self: Instance<T>) => ({
             get isPending() {
@@ -135,6 +139,14 @@ export function AsyncModels<T extends IAnyModelType>(
                 self.status = AsyncStatus.ready;
                 self.error = null;
                 self.data = data;
+                self.skip = 0;
+                self.take = 20;
+            },
+            onMore(data) {
+                self.status = AsyncStatus.ready;
+                self.error = null;
+                self.data = [...self.data, ...data];
+                self.skip = self.skip + self.take;
             },
             onError(error: Error) {
                 self.status = AsyncStatus.error;
