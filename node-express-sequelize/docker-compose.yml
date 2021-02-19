@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  backend:
+    image: node:12-alpine
+    command: sh -c "yarn run ${NODE_ENV}"
+    ports:
+      - '80:${PORT}'
+    volumes:
+      - './:/backend/${NODE_ENV}'
+    working_dir: '/backend/${NODE_ENV}'
+    env_file:
+      - .env
