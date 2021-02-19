@@ -5,9 +5,9 @@
   "license": "MIT",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "prod": "yarn build:prod && node dist/index.js",
+    "prod": "yarn build:prod && pm2-runtime start --node-args='-r dotenv/config' ecosystem.config.js",
     "docker:dev": "cp .env.dev .env && docker-compose up",
-    "docker:prod": "cp .env.prod .env && docker-compose up",
+    "docker:prod": "cp .env.prod .env && docker-compose up -d",
     "build:clear": "rm -rf dist",
     "build:dev": "yarn build:clear && webpack --config webpack.dev.js",
     "build:prod": "yarn build:clear && webpack --config webpack.prod.js",
