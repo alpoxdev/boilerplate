@@ -1,0 +1,10 @@
+{
+  "title": "Test Index Query",
+  "type": "object",
+  "properties": {
+    "test": {
+      "type": "boolean"
+    }
+  },
+  "required": ["test"]
+}
